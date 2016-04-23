@@ -1,0 +1,120 @@
+<html>
+<head>
+    <title>Page Title</title>
+    <style>
+        .points{
+            fill:steelblue;
+        }
+        polylinee, .ray{
+            fill:none;
+            stroke-width:3;
+            stroke:red;
+            stroke-opacity:0.5;
+        }
+        .sweepline{
+            stroke:blue;
+        }
+        .pred{
+            fill:red;
+        }
+    </style>
+</head>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+var width=900, height=500, points,i,origin=[900,0];
+
+var svgContainer = d3.select("body").append("svg")
+                                    .attr("width", width)
+                                    .attr("height", height);
+ 
+function getRandomPoints(n){
+    var mX=50, mY=50;//外框(出血框)
+    var temp = []
+    for( i = 0; i < n; i++){
+        var aa = (mX+Math.round(Math.random()*(width-2*mX)+1)) + " " + (mY+Math.round(Math.random()*(height-2*mY)+1));
+    //  alert(aa);
+        temp.push(aa);
+    }
+    return temp;
+}
+function printInitPoint(points){
+//    var svgContainer = d3.select("body").append("svg")
+//                                        .attr("width", width)
+  //                                      .attr("height", height);
+    for(i=0;i<points.length;i++){
+        var temp = (points[i].split(" "));
+    
+        var printPoints = svgContainer.append("circle")
+                                     .attr("class","points")
+                                     .attr("cx", temp[0])
+                                     .attr("cy", temp[1])
+                                     .attr("r", 6);
+        if(parseInt(temp[1]) > parseInt(origin[1])){
+            origin[0]=temp[0];
+            origin[1]=temp[1];
+        }
+        else if(parseInt(temp[1]) == parseInt(origin[1])){
+            if(parseInt(temp[0]) < parseInt(origin[0])){
+                origin[0]=temp[0];
+                origin[1]=temp[1];
+            }
+        }
+    }
+    var printPoints = svgContainer.append("circle")
+                                 .attr("class","pred")
+                                 .attr("cx", origin[0])
+                                 .attr("cy", origin[1])
+                                 .attr("r", 6);
+   //alert(origin[0] + "," + origin[1]);
+}
+function getAngle(orin,p2){
+    var x = Math.abs(parseInt(orin[0])-parseInt(p2[0]));
+//    alert(parseInt(orin[0])+"-"+parseInt(p2[0]));
+  //  alert(x);
+    var y = Math.abs(parseInt(orin[1])-parseInt(p2[1]));
+    var z = Math.sqrt(x*x+y*y);
+    var rotat = Math.round((Math.asin(y/z)/Math.PI*180));
+
+    // 第一象限
+    if (parseInt(p2[0]) >= parseInt(orin[0]) && parseInt(p2[1]) <= parseInt(orin[1])) {
+        rotat = rotat;
+    }
+    // 第二象限
+    else if (parseInt(p2[0]) <= parseInt(orin[0]) && parseInt(p2[1]) <= parseInt(orin[1])) {
+        rotat = 180 - rotat;
+    }
+    // 第三象限
+    else if (parseInt(p2[0]) <= parseInt(orin[0]) && parseInt(p2[1]) >= parseInt(orin[1])) {
+        rotat = 180 + rotat;
+    }
+    // 第四象限
+    else if(parseInt(p2[0]) >= parseInt(orin[0]) && parseInt(p2[1]) >= parseInt(orin[1])){
+        rotat = 360 - rotat;
+    }
+    
+    return rotat;
+}
+
+var bb = getRandomPoints(5);
+printInitPoint(bb);
+var temp = (bb[0].split(" "));
+//alert(temp);
+var aaa = getAngle(origin,temp);
+
+//var svgContainer = d3.select("body").append("svg")
+  //                                  .attr("width", width)
+    //                                .attr("height", height);
+
+//Draw the line
+var circle = svgContainer.append("line")
+                         .attr("x1", parseInt(origin[0]))
+                         .attr("y1", parseInt(origin[1]))
+                         .attr("x2", parseInt(temp[0]))
+                         .attr("y2", parseInt(temp[1]))
+                         .attr("stroke-width", 2)
+                         .attr("stroke", "black");
+
+alert(aaa);
+
+</script>
