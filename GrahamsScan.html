@@ -194,8 +194,11 @@ function question(){
     var temp=prompt("How many points you want?( > 2)","");
     return temp;
 }
-var pnumber = question();
-var points = getRandomPoints(pnumber);
+var PN = 0;
+while(PN<=2){
+    var PN = question();
+}
+var points = getRandomPoints(PN);
 //var points = [[100,100],[100,200],[100,300],[100,400],[200,100],[200,200],[200,300],[200,400],[300,100],[300,200],[300,300],[300,400],[400,100],[400,200],[400,300],[400,400]];
 printPoint(points,"points");
 var firstStep = findOrigin(points);
