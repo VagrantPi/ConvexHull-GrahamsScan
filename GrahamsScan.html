@@ -5,71 +5,78 @@
         .points{
             fill:steelblue;
         }
-        polylinee, .ray{
-            fill:none;
-            stroke-width:3;
-            stroke:red;
-            stroke-opacity:0.5;
-        }
-        .sweepline{
-            stroke:blue;
-        }
         .pred{
             fill:red;
         }
     </style>
+<script src="mySort.js" type="text/javascript"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
 </head>
 <body>
-<script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
-var width=900, height=500, points,i,j,origin=[900,0];
+var width=900, height=500,i,j,origin=[width,0];
 
 var svgContainer = d3.select("body").append("svg")
                                     .attr("width", width)
                                     .attr("height", height);
- 
+
+function drawLine(p1,p2,color,w){
+    var line = svgContainer.append("line")
+                           .attr("x1", parseInt(p1[0]))
+                           .attr("y1", parseInt(p1[1]))
+                           .attr("x2", parseInt(p2[0]))
+                           .attr("y2", parseInt(p2[1]))
+                           .attr("stroke-width", w)
+                           .attr("stroke", color);
+}
+
+drawLine([0,0],[width,0],"black",1);
+drawLine([width,0],[width,height],"black",1);
+drawLine([width,height],[0,height],"black",1);
+drawLine([0,height],[0,0],"black",1);
+
 function getRandomPoints(n){
     var mX=50, mY=50;//外框(出血框)
-    var temp = []
-    for( i = 0; i < n; i++){
-        var aa = (mX+Math.round(Math.random()*(width-2*mX)+1)) + " " + (mY+Math.round(Math.random()*(height-2*mY)+1));
-        temp.push(aa);
+    var temp = [];
+    for(i = 0; i < n; i++){
+//        var aa = (mX+Math.round(Math.random()*(width-2*mX)+1)) + " " + (mY+Math.round(Math.random()*(height-2*mY)+1));
+        temp.push([mX+Math.round(Math.random()*(width-2*mX)+1),mY+Math.round(Math.random()*(height-2*mY)+1)]);
     }
     return temp;
 }
-function printInitPointAndChoiseFirst(points){
-//    alert(points.length + "in");
-//    alert(points[1]);
-    for(i=0;i<points.length;i++){
-        var temp = (points[i].split(" "));
-        var popPoint;
+
+function printPoint(p,pclass){
+    for(i=0;i<p.length;i++){
+        var temp = p[i];
         var printPoints = svgContainer.append("circle")
-                                     .attr("class","points")
+                                     .attr("class",pclass)
                                      .attr("cx", temp[0])
                                      .attr("cy", temp[1])
                                      .attr("r", 6);
+    }
+
+}
+
+function findOrigin(p){
+    var popPoint;
+    for(i=0;i<p.length;i++){
+        var temp = p[i];
         if(parseInt(temp[1]) > parseInt(origin[1])){
             origin[0]=temp[0];
             origin[1]=temp[1];
             popPoint = i;
-        }
-        else if(parseInt(temp[1]) == parseInt(origin[1])){
+        }else if(parseInt(temp[1]) == parseInt(origin[1])){
             if(parseInt(temp[0]) < parseInt(origin[0])){
                 origin[0]=temp[0];
                 origin[1]=temp[1];
                 popPoint = i;
             }
         }
-        
     }
-    var printPoints = svgContainer.append("circle")
-                                 .attr("class","pred")
-                                 .attr("cx", origin[0])
-                                 .attr("cy", origin[1])
-                                 .attr("r", 6);
-    points.splice(popPoint,1);
-    return points;
+    p.splice(popPoint,1);
+    return(p);
 }
+
 
 function getAngle(orin,p2){
     var x = Math.abs(parseInt(orin[0])-parseInt(p2[0]));
@@ -93,97 +100,108 @@ function getAngle(orin,p2){
     else if(parseInt(p2[0]) >= parseInt(orin[0]) && parseInt(p2[1]) >= parseInt(orin[1])){
         rotat = 360 - rotat;
     }
-    
+
     return rotat;
 }
 
-function drawLine(p1,p2,color,w){
-    var circle = svgContainer.append("line")
-                             .attr("x1", parseInt(p1[0]))
-                             .attr("y1", parseInt(p1[1]))
-                             .attr("x2", parseInt(p2[0]))
-                             .attr("y2", parseInt(p2[1]))
-                             .attr("stroke-width", w)
-                             .attr("stroke", color);
-}
+
+/* ============================ */
+var parray = [];                //  mysort(origin,parray);   the array's name should be parray  ORZ.    hope it will be fix in future.
+/* ============================ */
+
 
 function sortAngle(p){
-    var allAngle = [];
+//    var allAngle = [];
     var sortable = [];
     for(i=0;i<p.length;i++){
-        var slipted = (p[i].split(" "));
-        var angle = getAngle(origin,slipted);
-        allAngle.push([angle,slipted]);
+        var temp = p[i];
+        var angle = getAngle(origin,temp);
+        parray.push([angle,temp]);            //[[angle,[px,py]],[angle,[px,py]]]
     }
-    function ss(a,b){
-        return a[0]-b[0];            //先別管角度相同時,之後再判斷
-    }
-    return sortable = allAngle.sort(ss);
+    //alert((mysort(origin,parray)).join(" | "));
+    mysort(origin,parray);
+    var temp = mysort2(parray);
+    //alert(temp);
+    //alert(parray.join(" | "));
 }
 
 
-//function turncheck(pm,p1,p3){
-//    var tern = (p3[0]-pm[0]) * (p1[1]-pm[1]) - (p3[1]-pm[1]) * (p1[0]-pm[0]);
+/* =========================== */
+var stack = [];
+var samestack = [];
+var step = 1;
+/* =========================== */
+
+
 function turncheck(p1,pm,p3){
     var tern = (p3[0]-p1[0]) * (pm[1]-p1[1]) - (p3[1]-p1[1]) * (pm[0]-p1[0]);
-    if (tern>0) return "left";
-    else if (tern<0) return "right";
+    if (tern>0){
+        return "left";
+    }
+    else if (tern<0){
+        return "right";
+    }/*else{
+         return "equal";
+    }*/
+    //else(tern==0) return "equal";
 }
 
-function question(){
-    var temp=prompt("How many points you want?( > 2)","");
-    return temp;
-}
-var stack = [];
-var step = 1;
 function recursiveCheck(next){
     var nowNum = stack.length-1;
     var CK = turncheck(stack[nowNum-1],stack[nowNum],next);
     if(CK == "right"){
+        /*alert("step " + step);    step+=1;
+        drawLine(stack[nowNum],next,"red",6);
         alert("step " + step);    step+=1;
-        drawLine(stack[nowNum],next,"white",6);
-        alert("step " + step);    step+=1;
-        drawLine(stack[nowNum-1],stack[nowNum],"white",6);
-        alert("step " + step);    step+=1;
+        drawLine(stack[nowNum-1],stack[nowNum],"red",6);
+        alert("step " + step);    step+=1;*/
         stack.pop();
         recursiveCheck(next);
     }else if(CK == "left"){
         stack.push(next);
-        drawLine(stack[nowNum],next,"green",5);
+        //drawLine(stack[nowNum],next,"green",5);
+    }else{
+        stack.push(next);
+        //drawLine(stack[nowNum],next,"blue",5);
     }
+    /*else if(CK == "equal"){
+        continue;
+    }*/
 }
 
 function algorithm(allPoints){
     var finalp=allPoints[(allPoints.length-1)][1];
     drawLine(origin,allPoints[0][1],"green",5);
-    drawLine(allPoints[0][1],allPoints[1][1],"green",5);
-    
+//    drawLine(allPoints[0][1],allPoints[1][1],"green",5);
+
     stack.push(origin);
     stack.push(allPoints[0][1]);
     stack.push(allPoints[1][1]);
     for(i=2;i<allPoints.length;i++){
-        alert("step " + step);    step+=1;
-        drawLine(allPoints[i-1][1],allPoints[i][1],"green",5);
+        //alert("step " + step);    step+=1;
+        //drawLine(allPoints[i-1][1],allPoints[i][1],"green",5);
         recursiveCheck(allPoints[i][1]);
     }
-    /*for(i=2;i<stack.length;i++){
+    for(i=2;i<stack.length;i++){
         drawLine(stack[i-1],stack[i],"green",5);
-    }*/
-    alert("step " + step);    step+=1;
+    }
+    //alert("step " + step);    step+=1;
     drawLine(origin,finalp,"green",5);
 }
 
 
-var PN = question();
-while(PN<=2){
-    var PN = question();
+function question(){
+    var temp=prompt("How many points you want?( > 2)","");
+    return temp;
 }
-var bb = printInitPointAndChoiseFirst(getRandomPoints(PN));
-//var cc = printInitPointAndChoiseFirst(bb);
-var sorted = sortAngle(bb);
-/*for(var key in sorted){
-    drawLine(origin,sorted[key][1],"blue",7);
-}*/
-algorithm(sorted);
+var pnumber = question();
+var points = getRandomPoints(pnumber);
+//var points = [[100,100],[100,200],[100,300],[100,400],[200,100],[200,200],[200,300],[200,400],[300,100],[300,200],[300,300],[300,400],[400,100],[400,200],[400,300],[400,400]];
+printPoint(points,"points");
+var firstStep = findOrigin(points);
+printPoint([origin],"pred");
+sortAngle(firstStep);
+algorithm(parray);
 
 </script>
+</body>
