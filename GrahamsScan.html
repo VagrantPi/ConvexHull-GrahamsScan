@@ -150,42 +150,58 @@ function recursiveCheck(next){
     var nowNum = stack.length-1;
     var CK = turncheck(stack[nowNum-1],stack[nowNum],next);
     if(CK == "right"){
-        /*alert("step " + step);    step+=1;
-        drawLine(stack[nowNum],next,"red",6);
-        alert("step " + step);    step+=1;
-        drawLine(stack[nowNum-1],stack[nowNum],"red",6);
-        alert("step " + step);    step+=1;*/
+        if(ST == true){
+            alert("step " + step);    step+=1;
+            drawLine(stack[nowNum],next,"white",6);
+            alert("step " + step);    step+=1;
+            drawLine(stack[nowNum-1],stack[nowNum],"white",6);
+            alert("step " + step);    step+=1;
+        }
         stack.pop();
         recursiveCheck(next);
     }else if(CK == "left"){
         stack.push(next);
-        //drawLine(stack[nowNum],next,"green",5);
+        if(ST == true){
+            alert("step " + step);    step+=1;
+            drawLine(stack[nowNum],next,"green",5);
+        }
     }else{
         stack.push(next);
-        //drawLine(stack[nowNum],next,"blue",5);
+        /*if(ST == true){
+            alert("step " + step);    step+=1;
+            drawLine(stack[nowNum],next,"blue",5);
+        }*/
     }
-    /*else if(CK == "equal"){
-        continue;
-    }*/
 }
 
 function algorithm(allPoints){
     var finalp=allPoints[(allPoints.length-1)][1];
+    if(ST == true){
+        alert("step " + step);    
+        step+=1;
+    }
     drawLine(origin,allPoints[0][1],"green",5);
-//    drawLine(allPoints[0][1],allPoints[1][1],"green",5);
+    if(ST == true){
+        drawLine(allPoints[0][1],allPoints[1][1],"green",5);
+    }
 
     stack.push(origin);
     stack.push(allPoints[0][1]);
     stack.push(allPoints[1][1]);
     for(i=2;i<allPoints.length;i++){
-        //alert("step " + step);    step+=1;
-        //drawLine(allPoints[i-1][1],allPoints[i][1],"green",5);
+        if(ST == true){
+            alert("step " + step);    step+=1;
+            drawLine(allPoints[i-1][1],allPoints[i][1],"green",5);
+        }
         recursiveCheck(allPoints[i][1]);
     }
     for(i=2;i<stack.length;i++){
         drawLine(stack[i-1],stack[i],"green",5);
     }
-    //alert("step " + step);    step+=1;
+    if(ST == true){
+        alert("step " + step);    
+        step+=1;
+    }
     drawLine(origin,finalp,"green",5);
 }
 
@@ -198,6 +214,7 @@ var PN = 0;
 while(PN<=2){
     var PN = question();
 }
+var ST = confirm("Do you want to show step?");
 var points = getRandomPoints(PN);
 //var points = [[100,100],[100,200],[100,300],[100,400],[200,100],[200,200],[200,300],[200,400],[300,100],[300,200],[300,300],[300,400],[400,100],[400,200],[400,300],[400,400]];
 printPoint(points,"points");
