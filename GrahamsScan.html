@@ -14,7 +14,7 @@
 </head>
 <body>
 <script>
-var width=1500, height=900,i,j,origin=[width,0];
+var width=1500, height=1000,i,j,origin=[width,0];
 
 var svgContainer = d3.select("body").append("svg")
                                     .attr("width", width)
@@ -263,15 +263,13 @@ function questionXY(){
 	return [[MaxX*5,MinX*5],[MaxY*5,MinY*5]];
 }
 
-//var XYrang = questionXY();
-var XYrang = [[50,500],[-50,-150]];
+var XYrang = questionXY();
 XYline(XYrang);
 var PN = 0;
-/*while(PN<=2){
+while(PN<=2){
     var PN = questionPN();
-}*/ PN = 500;
-//var ST = confirm("Do you want to show step?");
-var ST = false;
+}
+var ST = confirm("Do you want to show step?");
 var points = getRandomPoints(PN,XYrang);
 //var points = [[100,100],[100,200],[100,300],[100,400],[200,100],[200,200],[200,300],[200,400],[300,100],[300,200],[300,300],[300,400],[400,100],[400,200],[400,300],[400,400]];
 printPoint(points,"points");
